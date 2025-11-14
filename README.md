@@ -1,4 +1,4 @@
-# AI Observability Platform (Monorepo)
+# AI Observability Platform
 
 This is an end-to-end AI-driven observability platform built on:
 
