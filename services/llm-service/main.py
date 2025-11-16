@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 import psycopg2
-import requests
-import openai
+import google.generativeai as genai
+import os
+
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+model = genai.GenerativeModel('gemini-1.0-pro')
 
 app = FastAPI()
 
 PG = psycopg2.connect(host="postgres", dbname="observability",
                       user="admin", password="admin")
+
 
 @app.post("/explain-incident/{incident_id}")
 def explain(incident_id: int):
@@ -22,13 +26,9 @@ def explain(incident_id: int):
     Explain probable root cause and suggested actions.
     """
 
-    resp = openai.ChatCompletion.create(
-        model="gpt-4.1-mini",
-        messages=[{"role": "system", "content": "You are an SRE assistant."},
-                  {"role": "user", "content": prompt}]
-    )
+    resp = model.generate_content(prompt)
 
-    rca = resp['choices'][0]['message']['content']
+    rca = resp.text
 
     cur.execute("UPDATE incidents SET rca_text=%s WHERE id=%s", (rca, incident_id))
     PG.commit()

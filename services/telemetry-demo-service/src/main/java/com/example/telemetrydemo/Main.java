@@ -1,4 +1,4 @@
-package com.example.telemetry;
+package com.example.telemetrydemo;
 
 public class Main {
     public static void main(String[] args) {

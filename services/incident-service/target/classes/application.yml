@@ -19,6 +19,7 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus
+
   endpoint:
     health:
       show-details: always
@@ -29,7 +30,7 @@ management:
 
   otlp:
     tracing:
-      endpoint: http://otel-collector:4317
+      endpoint: http://otel-collector:4318/v1/traces
     metrics:
       export:
         url: http://otel-collector:4318/v1/metrics
@@ -38,5 +39,4 @@ management:
 logging:
   level:
     root: INFO
-    org.springframework.web: INFO
     io.micrometer: INFO

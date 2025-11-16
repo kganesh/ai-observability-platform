@@ -10,18 +10,18 @@ management:
     web:
       exposure:
         include: health,info,prometheus
+
   endpoint:
     health:
       show-details: always
 
-  # Enable tracing + configure OTEL exporters via Micrometer
   tracing:
     sampling:
-      probability: 1.0   # trace everything in demo; reduce in prod
+      probability: 1.0   # trace everything in dev
 
   otlp:
     tracing:
-      endpoint: http://otel-collector:4317
+      endpoint: http://otel-collector:4318/v1/traces
     metrics:
       export:
         url: http://otel-collector:4318/v1/metrics
@@ -30,5 +30,4 @@ management:
 logging:
   level:
     root: INFO
-    org.springframework.web: INFO
     io.micrometer: INFO
