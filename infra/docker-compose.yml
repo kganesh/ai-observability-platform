@@ -1,4 +1,3 @@
-version: "3.9"
 
 services:
 
@@ -25,7 +24,7 @@ services:
   # Exports traces → Jaeger, metrics → Prometheus
   # ============================================================
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib-dev:latest
     container_name: otel-collector
     command: [ "--config=/etc/otel-collector-config.yml" ]
     volumes:
@@ -74,11 +73,14 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:1.52
     container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
     ports:
       - "16686:16686"  # UI
-      - "14250:14250"  # Collector gRPC
+      - "14250:14250"  # Collector gRPC (classic)
     networks:
       - observability-net
+
 
   # ============================================================
   # Telemetry Demo Service (Spring Boot)
@@ -91,13 +93,18 @@ services:
       dockerfile: Dockerfile
     container_name: telemetry-demo-service
     environment:
+      - SPRING_APPLICATION_NAME=telemetry-demo-service
+      - OTEL_SERVICE_NAME=telemetry-demo-service
       - SPRING_PROFILES_ACTIVE=docker
     ports:
       - "8080:8080"
+    volumes:
+      - ./spring/application-docker.yml:/workspace/config/application-docker.yml
     depends_on:
       - otel-collector
     networks:
       - observability-net
+
 
   # ============================================================
   # Incident Service (Spring Boot)
@@ -110,14 +117,22 @@ services:
       dockerfile: Dockerfile
     container_name: incident-service
     environment:
+      - SPRING_APPLICATION_NAME=incident-service
+      - OTEL_SERVICE_NAME=incident-service
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/observability
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
       - SPRING_PROFILES_ACTIVE=docker
     ports:
       - "8081:8081"
+    volumes:
+      - ./spring/application-docker.yml:/workspace/config/application-docker.yml
     depends_on:
       - postgres
       - otel-collector
     networks:
       - observability-net
+
 
   # ============================================================
   # Anomaly Detection Service (Python)
@@ -128,6 +143,12 @@ services:
       context: ../services/anomaly-service
       dockerfile: Dockerfile
     container_name: anomaly-service
+    environment:
+      PROM_URL: http://prometheus:9090/api/v1/query
+      PG_HOST: postgres
+      PG_DB: observability
+      PG_USER: admin
+      PG_PASSWORD: admin
     depends_on:
       - prometheus
       - postgres

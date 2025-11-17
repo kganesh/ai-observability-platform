@@ -2,17 +2,22 @@ receivers:
   otlp:
     protocols:
       grpc:
+        endpoint: 0.0.0.0:4317
       http:
+        endpoint: 0.0.0.0:4318
 
 exporters:
+  # For debugging – prints spans/metrics/logs in collector logs
   debug:
     verbosity: detailed
 
+  # Prometheus exporter – scraped by Prometheus
   prometheus:
     endpoint: "0.0.0.0:8889"
 
-  otlp:
-    endpoint: jaeger:14250
+  # Send traces to Jaeger via OTLP gRPC
+  otlp/jaeger:
+    endpoint: jaeger:4317
     tls:
       insecure: true
 
@@ -20,10 +25,12 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [otlp, debug]
+      exporters: [otlp/jaeger, debug]
+
     metrics:
       receivers: [otlp]
       exporters: [prometheus, debug]
+
     logs:
       receivers: [otlp]
       exporters: [debug]

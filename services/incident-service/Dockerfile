@@ -1,13 +1,11 @@
-# Build stage
-FROM maven:3.9-eclipse-temurin-21 AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
+FROM eclipse-temurin:21-jdk-alpine
 
-# Package stage
-FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
-COPY --from=build /app/target/incident-service-0.0.1-SNAPSHOT.jar .
-EXPOSE 8080
-CMD ["java", "-jar", "incident-service-0.0.1-SNAPSHOT.jar"]
+
+# Copy the fat JAR built by Maven (check the name under target/)
+COPY target/incident-service-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8081
+
+# Wait for the collector to be ready on port 4318, then start the application
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

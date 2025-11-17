@@ -6,20 +6,20 @@ spring:
     name: telemetry-demo-service
 
 management:
+  tracing:
+    sampling:
+      probability: 1.0   # Trace everything in dev
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
-
+        include: health,info
   endpoint:
     health:
       show-details: always
 
-  tracing:
-    sampling:
-      probability: 1.0   # trace everything in dev
-
   otlp:
+    resource-attributes:
+      service.name: telemetry-demo-service
     tracing:
       endpoint: http://otel-collector:4318/v1/traces
     metrics:
@@ -30,4 +30,5 @@ management:
 logging:
   level:
     root: INFO
-    io.micrometer: INFO
+    io.micrometer: DEBUG
+    io.opentelemetry: DEBUG

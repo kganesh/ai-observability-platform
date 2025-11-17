@@ -1,8 +1,0 @@
-com\obsevability\incident\Main.class
-com\example\incident\model\Anomaly.class
-com\example\incident\repository\AnomalyRepository.class
-com\example\incident\IncidentServiceApplication.class
-com\example\incident\model\Incident.class
-com\example\incident\service\IncidentAggregationService.class
-com\example\incident\repository\IncidentRepository.class
-com\example\incident\controller\IncidentController.class

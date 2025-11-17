@@ -10,5 +10,5 @@ COPY target/telemetry-demo-service-0.0.1-SNAPSHOT.jar app.jar
 # Make port 8080 available to the world outside this container
 EXPOSE 8080
 
-# Run the JAR file
+# Wait for the collector to be ready on port 4318, then start the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

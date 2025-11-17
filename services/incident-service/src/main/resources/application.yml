@@ -10,6 +10,7 @@ spring:
     username: admin
     password: admin
   jpa:
+    #database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: false
@@ -18,7 +19,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info
 
   endpoint:
     health:
@@ -29,6 +30,8 @@ management:
       probability: 1.0
 
   otlp:
+    resource-attributes:
+      service.name: incident-service
     tracing:
       endpoint: http://otel-collector:4318/v1/traces
     metrics:

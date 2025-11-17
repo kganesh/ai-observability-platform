@@ -34,3 +34,29 @@ To start the service, run the following command from the `services/llm-service` 
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
+
+Few docker commands for troubleshooting
+
+```bash
+
+docker exec -it incident-service sh
+# inside:
+apk add curl  # only if curl is missing
+curl -v http://otel-collector:4318/v1/traces
+
+```
+
+```bash
+docker compose up --build telemetry-demo-service incident-service anomaly-service
+```
+
+```bash
+docker compose down
+docker compose stop otel-collector
+docker compose rm -f otel-collector
+docker compose up -d otel-collector
+docker compose logs -f otel-collector
+docker compose restart telemetry-demo-service
+docker compose logs -f telemetry-demo-service
+
+```
