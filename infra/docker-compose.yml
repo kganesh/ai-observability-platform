@@ -95,7 +95,9 @@ services:
     environment:
       - SPRING_APPLICATION_NAME=telemetry-demo-service
       - OTEL_SERVICE_NAME=telemetry-demo-service
-      - SPRING_PROFILES_ACTIVE=docker
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - OTEL_METRICS_EXPORTER="otlp"
     ports:
       - "8080:8080"
     volumes:

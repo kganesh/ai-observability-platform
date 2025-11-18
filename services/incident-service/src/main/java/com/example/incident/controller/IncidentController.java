@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/incidents")
@@ -30,5 +31,16 @@ public class IncidentController {
         return incidentRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/testCreateIncident")
+    public Incident createTestIncident() {
+        Incident i = new Incident();
+        i.setTitle("Test incident");
+        i.setServiceName("telemetry-demo-service");
+        i.setStatus("OPEN");
+        i.setFirstSeen(Instant.now());
+        i.setLastSeen(Instant.now());
+        return incidentRepository.save(i);
     }
 }

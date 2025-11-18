@@ -9,3 +9,5 @@ GET http://localhost:8080/checkout?scenario=slow HTTP/1.1
 GET http://localhost:8080/checkout?scenario=error HTTP/1.1
 
 ###
+
+POST http://localhost:8081/incidents/testCreateIncident HTTP/1.1

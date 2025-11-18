@@ -11,7 +11,7 @@ PG_DB = os.getenv("PG_DB", "observability")
 PG_USER = os.getenv("PG_USER", "admin")
 PG_PASSWORD = os.getenv("PG_PASSWORD", "admin")
 
-OTEL_RESOURCE_ATTRIBUTES=service.name=anomaly-service
+OTEL_RESOURCE_ATTRIBUTES="service.name=anomaly-service"
 
 QUERY = 'histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[1m])) by (le))'
 WINDOW_SIZE = 10

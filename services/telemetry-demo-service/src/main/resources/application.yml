@@ -9,23 +9,26 @@ management:
   tracing:
     sampling:
       probability: 1.0   # Trace everything in dev
+
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: always
 
+  # Metrics export configuration for micrometer-registry-otlp
   otlp:
     resource-attributes:
       service.name: telemetry-demo-service
-    tracing:
-      endpoint: http://otel-collector:4318/v1/traces
+
     metrics:
       export:
         url: http://otel-collector:4318/v1/metrics
-        step: 10s
+
+    tracing:
+      endpoint: http://otel-collector:4318/v1/traces
 
 logging:
   level:

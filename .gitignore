@@ -1,0 +1,52 @@
+# Compiled source #
+###################
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Build output #
+################
+target/
+build/
+dist/
+
+# IDE configuration #
+#####################
+.idea/
+*.iml
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+
+# Logs and temporary files #
+############################
+*.log
+logs/
+
+# Maven #
+#########
+.mvn/wrapper/maven-wrapper.jar
+
+# Python #
+##########
+__pycache__/
+*.pyc
+venv/
+*.egg-info/
+.pytest_cache/
+.tox/
+.coverage
+
+# OS-specific #
+###############
+.DS_Store
+Thumbs.db
+
+# Environment variables #
+#########################
+.env
+.env.*

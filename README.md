@@ -58,5 +58,14 @@ docker compose up -d otel-collector
 docker compose logs -f otel-collector
 docker compose restart telemetry-demo-service
 docker compose logs -f telemetry-demo-service
+docker compose build anomaly-service
+docker compose up -d anomaly-service
+docker compose logs -f anomaly-service   # verify it connects to Postgres
 
+curl http://localhost:8889/metrics
 ```
+Prometheus metrics
+http_server_requests_seconds_count
+http_server_requests_seconds_sum
+http_server_requests_seconds_bucket (histogram)
+JVM metrics (memory, threads, etc.)
