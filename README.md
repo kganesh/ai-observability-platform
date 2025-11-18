@@ -1,38 +1,40 @@
 # AI Observability Platform
 
-This is an end-to-end AI-driven observability platform built on:
+This project provides an end-to-end, AI-driven observability platform. It is designed to collect, analyze, and visualize telemetry data (metrics, traces, and logs) from microservices, detect anomalies, and perform AI-powered root cause analysis.
 
-- OpenTelemetry (metrics, logs, traces)
-- Prometheus, Loki, Jaeger, Grafana
-- AI anomaly detection (Python)
-- LLM-based Root Cause Analysis (Python + LLM API)
-- Java Spring Boot microservices (incident aggregation)
-- React dashboard for visualizing incidents
+## Core Components
 
-## How to Run Everything
+*   **Telemetry Collection:** OpenTelemetry Collector receives data from services.
+*   **Backend Storage & Visualization:**
+    *   **Prometheus:** Stores metrics scraped from the OTEL Collector.
+    *   **Jaeger:** Stores and visualizes distributed traces.
+    *   **Grafana:** Provides dashboards for visualizing metrics (not pre-configured).
+    *   **PostgreSQL:** Stores anomaly and incident data.
+*   **Application Services:**
+    *   `telemetry-demo-service`: A Spring Boot service to generate sample telemetry.
+    *   `incident-service`: A Spring Boot service to manage incidents.
+*   **AI/ML Services:**
+    *   `anomaly-service`: A Python service that queries Prometheus to detect latency anomalies.
+    *   `llm-service`: A Python service using a Large Language Model (LLM) for root cause analysis.
+*   **User Interface:**
+    *   `dashboard`: A React-based dashboard to view incidents.
 
-## LLM Service
+## Prerequisites
 
-The `llm-service` provides root cause analysis for incidents using Google's Gemini Pro model.
+*   Docker and Docker Compose
+*   A Google Gemini API Key
 
-### Setup
+## Getting Started
 
-1.  Navigate to the `services/llm-service` directory.
-2.  Install the required Python packages:
-    ```bash
-    pip install -r requirements.txt
-    ```
-3.  Set the `GEMINI_API_KEY` environment variable with your API key:
-    ```bash
-    export GEMINI_API_KEY="YOUR_API_KEY"
-    ```
+### 1. Configuration
 
-### Running the Service
+The `llm-service` requires a Google Gemini API key. The `docker-compose.yml` file is configured to read this key from a `.env` file at the root of the project.
 
-To start the service, run the following command from the `services/llm-service` directory:
+Create a file named `.env` in the project's root directory and add your API key:
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
+# .env
+GEMINI_API_KEY="YOUR_API_KEY_HERE"
 ```
 
 Few docker commands for troubleshooting
