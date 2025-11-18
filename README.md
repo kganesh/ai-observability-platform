@@ -17,34 +17,141 @@ An end-to-end, AI-driven observability platform designed to collect, analyze, an
 ## Architecture Overview
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────┐
-│  Spring Boot    │────▶│  OTEL Collector  │────▶│  Prometheus │
-│   Services      │     │                  │     │  (Metrics)  │
-└─────────────────┘     └──────────────────┘     └─────────────┘
-                                │
-                                │
-                                ▼
-                         ┌─────────────┐
-                         │   Jaeger    │
-                         │  (Traces)   │
-                         └─────────────┘
-                                │
-        ┌───────────────────────┼───────────────────────┐
-        │                       │                       │
-        ▼                       ▼                       ▼
-┌──────────────┐      ┌──────────────┐      ┌──────────────┐
-│   Grafana    │      │  Anomaly     │      │   LLM        │
-│  (Dashboards)│      │  Service    │      │  Service     │
-└──────────────┘      └──────────────┘      └──────────────┘
-                              │                       │
-                              └───────────┬───────────┘
-                                          │
-                                          ▼
-                                   ┌──────────────┐
-                                   │  PostgreSQL  │
-                                   │ (Incidents)  │
-                                   └──────────────┘
+┌─────────────────────┐
+│   Clients           │
+│  ┌─────┐ ┌────────┐ │
+│  │User│ │Dashboard│ │
+│  └─────┘ └────────┘ │
+└──────┬──────┬────────┘
+       │      │
+       │      │
+       ▼      │
+┌─────────────────────────────────────────────┐
+│   Application Services                      │
+│  ┌──────────────────────┐                  │
+│  │Telemetry Demo Service│                  │
+│  └──────────────────────┘                  │
+│  ┌──────────────────┐                      │
+│  │Incident Service  │                      │
+│  └──────────────────┘                      │
+│  ┌──────────────────┐                      │
+│  │Anomaly Service   │                      │
+│  └──────────────────┘                      │
+│  ┌──────────────────┐                      │
+│  │LLM Service       │                      │
+│  └──────────────────┘                      │
+└──────┬──────────┬──────────┬────────────────┘
+       │          │          │
+       │          │          │
+       │          │          │
+       ▼          ▼          ▼
+┌─────────────────────────────────────────────┐
+│   Observability Stack                       │
+│  ┌──────────────────────────┐              │
+│  │OpenTelemetry Collector   │              │
+│  └───────────┬──────────────┘              │
+│              │                              │
+│        ┌─────┴─────┐                       │
+│        │           │                        │
+│        ▼           ▼                        │
+│  ┌─────────┐ ┌──────────┐                 │
+│  │ Jaeger  │ │Prometheus│                 │
+│  │(Traces) │ │(Metrics) │                 │
+│  └─────────┘ └─────┬────┘                 │
+│                    │                        │
+│                    ▼                        │
+│              ┌──────────┐                  │
+│              │ Grafana  │                  │
+│              │(Dashboards)│                 │
+│              └──────────┘                  │
+└─────────────────────────────────────────────┘
+       │          │          │          │
+       │          │          │          │
+       │          │          │          │
+       │          │          │          │
+       │          │          │          │
+       ▼          ▼          ▼          ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│  PostgreSQL  │  │  PostgreSQL  │  │  PostgreSQL  │
+│ (Incidents)   │  │ (Anomalies)  │  │  (RCA Data)  │
+└──────────────┘  └──────────────┘  └──────────────┘
+       │
+       │
+       │
+       ▼
+┌──────────────┐
+│  Gemini API  │
+│  (External)  │
+└──────────────┘
 ```
+```mermaid
+flowchart LR
+    subgraph Clients
+        U[User]
+        UI[Dashboard]
+    end
+
+    subgraph Services
+        TDS[Telemetry Demo Service]
+        IS[Incident Service]
+        AS[Anomaly Service]
+        LLM[LLM Service]
+    end
+
+    subgraph Observability
+        OC[OpenTelemetry Collector]
+        JG[Jaeger]
+        PR[Prometheus]
+        GF[Grafana]
+    end
+
+    subgraph Data
+        PG[(PostgreSQL)]
+    end
+
+    subgraph External
+        GCP[(Gemini API)]
+    end
+
+    %% Client flows
+    U -->|"HTTP /checkout\nnormal / slow / error"| TDS
+    UI -->|"HTTP /api/incidents /api/anomalies /api/rca"| IS
+    UI -->|"HTTP /api/rca"| LLM
+
+    %% Service ↔ DB
+    TDS -->|"Business events / errors\nto incidents/anomalies via APIs (future)"| IS
+    IS <-->|JPA / JDBC| PG
+    AS -->|"INSERT anomalies"| PG
+    LLM -->|"SELECT incidents/anomalies"| PG
+
+    %% Metrics & traces from services
+    TDS -->|"OTLP traces/metrics"| OC
+    IS  -->|"OTLP traces/metrics"| OC
+    AS  -->|"(optional) metrics/logs"| OC
+    LLM -->|"(optional) traces/metrics"| OC
+
+    %% Collector fan-out
+    OC -->|"Traces (OTLP gRPC)"| JG
+    OC -->|"Metrics (Prometheus exporter)"| PR
+
+    %% Metrics UI
+    PR --> GF
+    GF -->|"Dashboards\n(service latencies, errors,\nanomalies, etc.)"| UI
+
+    %% LLM external call
+    LLM -->|"RCA generation\n(Gemini API)"| GCP
+
+    classDef svc fill:#1f77b4,stroke:#0b3a63,stroke-width:1,color:#fff;
+    classDef infra fill:#2ca02c,stroke:#145214,stroke-width:1,color:#fff;
+    classDef data fill:#ff7f0e,stroke:#7f4107,stroke-width:1,color:#fff;
+    classDef ext fill:#999,stroke:#555,color:#fff;
+
+    class TDS,IS,AS,LLM svc;
+    class OC,JG,PR,GF infra;
+    class PG data;
+    class GCP ext;
+```
+
 
 ## Core Components
 
