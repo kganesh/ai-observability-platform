@@ -11,3 +11,15 @@ GET http://localhost:8080/checkout?scenario=error HTTP/1.1
 ###
 
 POST http://localhost:8081/incidents/testCreateIncident HTTP/1.1
+
+###
+http://localhost:9090/api/v1/series?match[]={service="telemetry-demo-service"}
+
+###
+
+http://localhost:9090/api/v1/query?query=http_server_requests_milliseconds_count%7Bexported_job%3D%22telemetry-demo-service%22%7D
+
+###
+
+http://localhost:9090/api/v1/query?query=http_server_requests_milliseconds_count
+###

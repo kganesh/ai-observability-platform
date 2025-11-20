@@ -1,18 +1,32 @@
+spring:
+  application:
+    name: telemetry-demo-service
+
 management:
   tracing:
     sampling:
       probability: 1.0 # Trace all requests
-  
-  # Metrics export configuration for micrometer-registry-otlp
+
   otlp:
     metrics:
       export:
         url: http://otel-collector:4318/v1/metrics
-
     tracing:
       endpoint: http://otel-collector:4318/v1/traces
 
-  logging:
-    level:
-      io.micrometer.tracing: INFO
-      io.opentelemetry: INFO
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+
+logging:
+  level:
+    io.micrometer.tracing: INFO
+    io.opentelemetry: INFO

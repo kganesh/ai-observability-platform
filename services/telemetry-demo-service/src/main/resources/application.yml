@@ -26,6 +26,11 @@ management:
     metrics:
       export:
         url: http://otel-collector:4318/v1/metrics
+      distribution:
+        percentiles-histogram:
+          http:
+            server:
+              requests: true
 
     tracing:
       endpoint: http://otel-collector:4318/v1/traces
